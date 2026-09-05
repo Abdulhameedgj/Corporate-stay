@@ -19,6 +19,46 @@ const styles = {
   bookBtn: { marginTop: "0.8rem", background: "linear-gradient(135deg, #003580, #0071c2)", color: "white", border: "none", padding: "0.6rem", borderRadius: "8px", fontWeight: "700", cursor: "pointer", fontSize: "0.9rem", transition: "opacity 0.2s" },
 };
 
+const mediaQueryStyle = `
+  @media (max-width: 768px) {
+    .hotel-card-body {
+      padding: 0.8rem !important;
+    }
+    .hotel-card-name {
+      font-size: 0.95rem !important;
+    }
+    .hotel-card-price {
+      font-size: 1rem !important;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .hotel-card-body {
+      padding: 0.75rem !important;
+      gap: 0.3rem !important;
+    }
+    .hotel-card-name {
+      font-size: 0.9rem !important;
+    }
+    .hotel-card-price {
+      font-size: 0.95rem !important;
+    }
+    .hotel-card-location {
+      font-size: 0.75rem !important;
+    }
+    .hotel-card-description {
+      font-size: 0.8rem !important;
+    }
+    .hotel-card-amenities {
+      gap: 0.3rem !important;
+    }
+    .hotel-card-amenity-tag {
+      font-size: 0.7rem !important;
+      padding: 0.15rem 0.5rem !important;
+    }
+  }
+`;
+
 function StarRating({ rating }) {
   return (
     <span style={styles.stars}>
@@ -31,15 +71,19 @@ function StarRating({ rating }) {
 export default function HotelCard({ hotel }) {
   const [hovered, setHovered] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const cardStyle = {
+    ...styles.card,
+    transform: hovered && hotel.active ? "translateY(-6px)" : "translateY(0)",
+    boxShadow: hovered && hotel.active ? "0 12px 30px rgba(0,53,128,0.18)" : "0 4px 16px rgba(0,0,0,0.09)",
+    cursor: hotel.active ? "pointer" : "default",
+    opacity: hotel.active ? 1 : 0.62,
+  };
 
   return (
     <>
+      <style>{mediaQueryStyle}</style>
       <div
-        style={{
-          ...styles.card,
-          transform: hovered ? "translateY(-6px)" : "translateY(0)",
-          boxShadow: hovered ? "0 12px 30px rgba(0,53,128,0.18)" : "0 4px 16px rgba(0,0,0,0.09)",
-        }}
+        style={cardStyle}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
@@ -47,24 +91,29 @@ export default function HotelCard({ hotel }) {
           {hotel.rating === 5 && <div style={styles.badge}>⭐ Top Rated</div>}
           <ImageSlider images={hotel.images} hotelName={hotel.name} />
         </div>
-        <div style={styles.body}>
+        <div style={styles.body} className="hotel-card-body">
           <div style={styles.topRow}>
-            <h3 style={styles.name}>{hotel.name}</h3>
+            <h3 style={{...styles.name, className: "hotel-card-name"}}>{hotel.name}</h3>
             <div>
-              <span style={styles.price}>₹{hotel.price}</span>
+              <span style={{...styles.price, className: "hotel-card-price"}}>₹{hotel.price}</span>
               <span style={styles.perNight}> /night</span>
             </div>
           </div>
-          <div style={styles.location}>📍 {hotel.location}</div>
+          <div style={{...styles.location, className: "hotel-card-location"}}>📍 {hotel.location}</div>
           <StarRating rating={hotel.rating} />
-          <p style={styles.description}>{hotel.description}</p>
-          <div style={styles.amenities}>
+          <p style={{...styles.description, className: "hotel-card-description"}}>{hotel.description}</p>
+          <div style={{...styles.amenities, className: "hotel-card-amenities"}}>
             {hotel.amenities.map((a) => (
-              <span key={a} style={styles.amenityTag}>{a}</span>
+              <span key={a} style={{...styles.amenityTag, className: "hotel-card-amenity-tag"}}>{a}</span>
             ))}
           </div>
-          <button style={styles.bookBtn} onClick={() => setShowModal(true)}>
-            Book Now →
+          <button
+            style={hotel.active ? styles.bookBtn : { ...styles.bookBtn, background: "#c7c7c7", cursor: "not-allowed", color: "#666" }}
+            onClick={() => hotel.active && setShowModal(true)}
+            disabled={!hotel.active}
+            aria-disabled={!hotel.active}
+          >
+            {hotel.active ? "Book Now →" : "Unavailable"}
           </button>
         </div>
       </div>
